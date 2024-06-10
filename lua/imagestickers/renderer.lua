@@ -203,7 +203,10 @@ function ImageStickers.RenderImageOntoSticker(self)
         if image_errored ~= true and image_loading ~= true then
             shouldDraw2D = false
             TextResult = nil
-
+            if image.width == nil or image.height == nil then
+                PrintTable(image)
+                error("Image.Width or Image.Height is nil. Please provide the table printed in your console with your error report.")
+            end
             w, h = image.width / 3, image.height / 3
 
             local imageScaleX, imageScaleY = math_Clamp(imageScale * self:GetImageScaleX(), 0, 32), math_Clamp(imageScale * self:GetImageScaleY(), 0, 32)
