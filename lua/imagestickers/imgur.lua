@@ -46,6 +46,4 @@ function ImageStickers.IsImgurLink(link)
             return false, "", "Bad link (needs to be a i.imgur.com link)"
         end
     end
-
-    return false, "", "Unknown issue"
 end
