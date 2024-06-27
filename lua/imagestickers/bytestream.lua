@@ -7,8 +7,6 @@ local math_huge = math.huge
 local math_frexp = math.frexp
 local math_ldexp = math.ldexp
 local math_floor = math.floor
-local math_min = math.min
-local math_max = math.max
 
 local bit_rshift = bit.rshift
 local tobyte, tochar = {}, {}

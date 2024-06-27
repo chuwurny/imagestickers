@@ -1,7 +1,5 @@
 local ImageStickers = ImageStickers
 
-local render_DrawQuad = render.DrawQuad
-local render_DrawBox = render.DrawBox
 local render_SetMaterial = render.SetMaterial
 local surface_DrawRect = surface.DrawRect
 local surface_SetDrawColor = surface.SetDrawColor
