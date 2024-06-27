@@ -523,7 +523,7 @@ local function vscrollbarInject(animated_parent, object)
 
     end
 
-    function object:Paint(w, h)	end
+    function object:Paint(w, h) end
 
     function object.btnUp:Paint(w, h)
         local cval = math.Clamp((window.getLifetime() - 1) * (1), 0, 1) * window.closingMult

@@ -7,13 +7,13 @@ local renderItems = {}
 ENT.Type = "anim"
 ENT.Base = "base_gmodentity"
 
-ENT.Category		= "Fun + Games"
-ENT.PrintName		= "Image Sticker"
-ENT.Author			= "March"
-ENT.Purpose			= "Projects images in 3D space, attached to a physical entity"
+ENT.Category        = "Fun + Games"
+ENT.PrintName       = "Image Sticker"
+ENT.Author          = "March"
+ENT.Purpose         = "Projects images in 3D space, attached to a physical entity"
 
 ENT.Editable        = false
-ENT.Spawnable		= true
+ENT.Spawnable       = true
 ENT.AdminOnly       = false
 
 function ENT:SpawnFunction(ply, tr, classname)
