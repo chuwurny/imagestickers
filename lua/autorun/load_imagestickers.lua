@@ -39,6 +39,7 @@ includeCS("renderer.lua")
 includeSH("language.lua")
 includeSH("shrinkwrap.lua")
 includeCS("properties.lua")
+includeSH("convars.lua")
 
 local load_queue = {}
 

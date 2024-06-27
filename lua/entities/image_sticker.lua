@@ -338,10 +338,11 @@ end
 
 function ENT:CheckIfURLCached()
     if not IsValid(self) then return end
-    local isImgur, imgurID, linkorerr = ImageStickers.IsImgurLink(string.Replace(self:GetImageURL(), ".jpeg", ".jpg"))
-    if isImgur then
-        if imagecache[imgurID] == nil then
-            self:ProcessImageURL(self:GetImageURL())
+
+    if not self.image then
+        local url = self:GetImageURL()
+        if imagecache[url] == nil then
+            self:ProcessImageURL(url)
         end
     end
     timer.Simple(1, function() if not IsValid(self) then return end self.CheckIfURLCached(self) end)
@@ -392,59 +393,108 @@ function ENT:CreateImage(materialData, animated, link, imgurID)
     self:ForceGPU()
 end
 
+function ENT:_ProcessImageURL(url)
+    if SERVER then return end
+
+    self.image = self:NewImageStruct(false, true)
+
+    if imagecache[url] == nil then
+        http.Fetch(url,
+            function(body, size, headers, code)
+                if code == 404 then
+                    self.image = self:NewImageStruct()
+                    self.image:setError("Not found [404]") -- TODO: use localization?
+                    return
+                end
+
+                if #body < 4 then
+                    self.image:setError(string.format("Bad body length (%d)", #body)) -- TODO: use localization?
+                    return
+                end
+
+                local header = string.sub(body, 1, 4)
+                local animated = false
+                local fileExtension
+
+                -- https://en.wikipedia.org/wiki/List_of_file_signatures
+                if header == "\x89\x50\x4E\x47" --[[ PNG ]] then
+                    fileExtension = "png"
+                elseif
+                    --[[ JPEG, JPG ]]
+                    header == "\xFF\xD8\xFF\xDB" or
+                    header == "\xFF\xD8\xFF\xE0" or
+                    header == "\xFF\xD8\xFF\xEE" or
+                    header == "\xFF\xD8\xFF\xE1"
+                then
+                    fileExtension = "jpg"
+                elseif header == "\x47\x49\x46\x38" --[[ GIF ]] then
+                    fileExtension = "dat" -- gmod doesn't allow to save .gif files, so use .dat instead
+                    animated = true
+                else
+                    local h1, h2, h3, h4 = string.byte(header, 1, 4)
+
+                    self.image = self:NewImageStruct()
+                    self.image:setError(string.format("Unknown file (%x %x %x %x)", h1, h2, h3, h4)) -- TODO: use localization?
+                    return
+                end
+
+                file.CreateDir("temp/imagesticker/")
+                local saved_data = "temp/imagesticker/" .. util.CRC(url) .. "." .. fileExtension
+                file.Write(saved_data, body)
+
+                if not animated then
+                    --Load file as material
+                    local rawMaterial = Material("../data/" .. saved_data, "nocull")
+                    local materialData = {}
+
+                    materialData.raw = rawMaterial
+                    materialData.animated = animated
+                    materialData.width = rawMaterial:GetInt("$realwidth")
+                    materialData.height = rawMaterial:GetInt("$realheight")
+                    imagecache[url] = materialData
+                    self:CreateImage(materialData, animated, url)
+                else
+                    self.image = self:NewImageStruct()
+                    self.image:setError(ImageStickers.Language.GetPhrase("imagesticker.gifnotsuppported", "GIF files are currently not supported."))
+                end
+            end,
+            function(err)
+                self.image = self:NewImageStruct()
+                self.image:setError("Bad HTTP: " .. err)
+            end,
+        {})
+    else
+        local materialData = imagecache[url]
+        self:CreateImage(materialData, materialData.animated, url)
+    end
+
+    self:ForceGPU()
+end
+
 function ENT:ProcessImageURL(new)
     if SERVER then return end
 
     self.image = self:NewImageStruct(false, true)
 
-    local final_link = string.Replace(new, ".jpeg", ".jpg")
-    local isImgur, imgurID, linkorerr = ImageStickers.IsImgurLink(final_link)
-    local animated = string.EndsWith(imgurID, ".gif")
+    local link
 
-    if not isImgur then
-        self.image = self:NewImageStruct()
-        self.image:setError(linkorerr)
+    if ImageStickers.ConVars.sv_imagestickers_allow_any_url:GetBool() then
+        link = new
     else
-        if imagecache[imgurID] == nil then
-            http.Fetch("https://" .. linkorerr,
-                function(body, size, headers, code)
-                    if code == 404 then
-                        self.image = self:NewImageStruct()
-                        self.image:setError("Not found [404]")
-                        return
-                    end
+        local isImgur, imgurID
 
-                    file.CreateDir("temp/imagesticker/")
-                    local saved_data = string.Replace("temp/imagesticker/" .. imgurID, ".gif", ".dat")
-                    file.Write(saved_data, body)
+        local final_link = string.Replace(new, ".jpeg", ".jpg")
+        isImgur, imgurID, link = ImageStickers.IsImgurLink(final_link)
 
-                    if not animated then
-                        --Load file as material
-                        local rawMaterial = Material("../data/temp/imagesticker/" .. imgurID, "nocull")
-                        local materialData = {}
+        if not imgurID or not isImgur then
+            self.image = self:NewImageStruct()
+            self.image:setError(link)
 
-                        materialData.raw = rawMaterial
-                        materialData.width = rawMaterial:GetInt("$realwidth")
-                        materialData.height = rawMaterial:GetInt("$realheight")
-                        imagecache[imgurID] = materialData
-                        self:CreateImage(materialData, animated, new, imgurID)
-                    else
-                        self.image = self:NewImageStruct()
-                        self.image:setError(ImageStickers.Language.GetPhrase("imagesticker.gifnotsuppported", "GIF files are currently not supported."))
-                    end
-                end,
-                function(err)
-                    self.image = self:NewImageStruct()
-                    self.image:setError("Bad HTTP: " .. err)
-                end,
-            {})
-        else
-            local materialData = imagecache[imgurID]
-            self:CreateImage(materialData, animated, new, imgurID)
+            return
         end
     end
 
-    self:ForceGPU()
+    self:_ProcessImageURL(link)
 end
 
 function ENT:Draw()
