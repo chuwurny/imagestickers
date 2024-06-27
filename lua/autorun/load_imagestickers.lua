@@ -43,15 +43,15 @@ includeCS("properties.lua")
 local load_queue = {}
 
 hook.Add("PlayerInitialSpawn", "march.imagestickers.newplayer", function(ply)
-	load_queue[ply] = true
+    load_queue[ply] = true
 end)
 
 hook.Add("SetupMove", "march.imagestickers.newplayer", function( ply, _, cmd)
-	if load_queue[ply] and not cmd:IsForced() then
-		load_queue[ply] = nil
+    if load_queue[ply] and not cmd:IsForced() then
+        load_queue[ply] = nil
 
-		hook.Run("march.imagestickers.newplayer", ply, ents.FindByClass("image_sticker")) -- Send what you need here!
-	end
+        hook.Run("march.imagestickers.newplayer", ply, ents.FindByClass("image_sticker")) -- Send what you need here!
+    end
 end )
 
 ImageStickers.Log("Loaded!")

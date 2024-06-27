@@ -9,7 +9,7 @@ local Bytestream = ImageStickers.Bytestream
 
 -- The wrap calculations are done on the client who performs the recalculation, the result of which is passed through a function that converts the points into
 -- the network-efficient format, which is then sent to the server to both store for dupes and send to the rest of the clients. The gizmo uses a rough approximation
--- (just the raw util.TraceLine result), while the full ralculation uses an experimental method that traces the actual visual meshes of entities rather than 
+-- (just the raw util.TraceLine result), while the full ralculation uses an experimental method that traces the actual visual meshes of entities rather than
 -- just the physical. Both methods are significantly slow, slow enough where they cannot be ran real-time, hence the need for compilation down to a file.
 
 
@@ -81,7 +81,7 @@ function shrinkwrap.RecalculatePoints(self, xpoints, ypoints, offset, accuracy, 
     accuracy = accuracy or SHRINKWRAP_ACCURACY_VISMESH
     throwawaynonhits = throwawaynonhits or false
     if SERVER then return end
-    
+
     local meshes = {}
 
     local function cacheEnt(ent)
@@ -119,7 +119,7 @@ function shrinkwrap.RecalculatePoints(self, xpoints, ypoints, offset, accuracy, 
         local lastDistance = 2^20
         local lastHit = Vector(2^15,2^15,2^15)
         local mesh = cacheEnt(ent)
-        
+
         for i = 1, #mesh, 3 do
             local v1, v2, v3 = mesh[i].pos, mesh[i + 1].pos, mesh[i + 2].pos
             local intersectionPoint = shrinkwrap.IntersectLineWithTriangle(tracedata.start, (tracedata.endpos - tracedata.start):GetNormalized(), v1, v2, v3)
@@ -132,14 +132,14 @@ function shrinkwrap.RecalculatePoints(self, xpoints, ypoints, offset, accuracy, 
                 end
             end
         end
-        
+
         if not hitTriangle then
             local newfilter = table.Copy(tracedata.filter or {})
             table.insert(newfilter, t.Entity)
             return trace{
                 start = tracedata.start,
                 endpos = tracedata.endpos,
-                filter = newfilter 
+                filter = newfilter
             }
         end
 
@@ -206,7 +206,7 @@ local function toCompressedNormal(n)
     n = math.Clamp(n, -1, 1)
     local flipped = n < 0
     local to = math.abs(n) * 100
-    
+
     local ret = (flipped and 128 or 0) + math.Round(to)
     return ret
 end
@@ -253,7 +253,7 @@ end
 local function vert(self, triangles, v)
     print(v.normal)
     table.insert(triangles, {
-        pos = trickMeshPosition(v.hitpos), 
+        pos = trickMeshPosition(v.hitpos),
         normal = trickMeshNormal(v.normal),
         u = Lerp(v.xfrac, 0, 1),
         v = Lerp(v.yfrac, 0, 1)
@@ -261,8 +261,8 @@ local function vert(self, triangles, v)
 end
 
 local function tri(self, triangles, v1, v2, v3)
-    vert(self, triangles, v1) 
-    vert(self, triangles, v2) 
+    vert(self, triangles, v1)
+    vert(self, triangles, v2)
     vert(self, triangles, v3)
 end
 
@@ -304,7 +304,7 @@ end
 -- model mesh (as viewed by the player right now) for use with the triangle intersection algorithm for precise wrapping
 function shrinkwrap.GetEntityMeshInWorldspace(ent)
     if not IsValid(ent) then return end
-    
+
     local model = ent:GetModel()
     local modelMesh, modelBind = util.GetModelMeshes(model, 0) -- LOD zero
 
@@ -322,14 +322,14 @@ function shrinkwrap.GetEntityMeshInWorldspace(ent)
 
             for _, boneVertexData in ipairs(vertex_weights) do
                 local add = (
-                    ent:GetBoneMatrix(boneVertexData.bone) * 
-                    modelBind[boneVertexData.bone].matrix * 
-                    vertex 
+                    ent:GetBoneMatrix(boneVertexData.bone) *
+                    modelBind[boneVertexData.bone].matrix *
+                    vertex
                 )
                 local addV = add:GetTranslation()
                 final = final + (addV * boneVertexData.weight)
             end
-            
+
             local newTri = {}
             for k, v in pairs(v) do newTri[k] = v end
             newTri.pos = final
@@ -352,7 +352,7 @@ local shrinkwrap_parsers = {
         read = function(self, bs)
             local points = {}
             local resX, resY = self:header(bs)
-            
+
             if resX > SHRINKWRAP_STORE_VERSION1_MAXRES or resY > SHRINKWRAP_STORE_VERSION1_MAXRES then
                 error("refusing to parse further: resolution > max (" .. SHRINKWRAP_STORE_VERSION1_MAXRES .. ")")
             end
@@ -373,7 +373,7 @@ local shrinkwrap_parsers = {
                 end
                 points[y] = row
             end
-            
+
             local check = bs:readByte()
             if check == 0xAB and bs:eof() then
                 return {
@@ -390,7 +390,7 @@ local shrinkwrap_parsers = {
 
 function shrinkwrap.ReadPoints(data)
     local bs = Bytestream(data)
-    
+
     local header = bs:readString()
     if header ~= "ISSW" then error("shrinkwrap.ReadPoints parse failure: malformed header") end
 
@@ -448,7 +448,7 @@ function shrinkwrap.UpdateShrinkwrap(ent, pointfile, ply)
         net.SendToServer()
         return
     end
-    
+
     if ply == nil then
         net.Broadcast()
     else

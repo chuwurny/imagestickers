@@ -3,7 +3,7 @@ local allowedFileExtensions = {
     jpg = true,
     jpeg = true,
     png = true,
-    gif = true 
+    gif = true
 }
 function ImageStickers.IsImgurLink(link)
     if link == "" then
@@ -32,7 +32,7 @@ function ImageStickers.IsImgurLink(link)
 
             character_pos = character_pos + 1
         end
-        
+
         local extension = string.GetExtensionFromFilename(file_name)
         if not allowedFileExtensions[extension] then
             return false, "", "Bad image format (must end with " .. table.concat(table.GetKeys(allowedFileExtensions), ", ") .. ")"
@@ -40,7 +40,7 @@ function ImageStickers.IsImgurLink(link)
 
         return true, file_name, link
     else
-        if string.StartWith(link, "imgur.com/") then 
+        if string.StartWith(link, "imgur.com/") then
             return false, "", "Bad Imgur link (you need to get the i.imgur.com link, not the imgur.com link)"
         else
             return false, "", "Bad link (needs to be a i.imgur.com link)"

@@ -51,7 +51,7 @@ end
 
 -- to-do: transfer these functions to a new animation library?
 
---toggleable animation class. increases/decreases a value by speed based off its internal enabled variable 
+--toggleable animation class. increases/decreases a value by speed based off its internal enabled variable
 local function ToggleableAnimation(def, speed)
     return {
         enabled = false,
@@ -82,14 +82,14 @@ local function TextAnimator(text, cps, offset)
         dead = false,
         text = function(self)
             if self.dead then return self.__text end
-            
+
             -- check if text has reached desired text?
-            if self.__text == self.__desired_text then 
+            if self.__text == self.__desired_text then
                 --print(self.__text, "==", self.__desired_text)
-                self.dead = true 
-                return self.__text 
+                self.dead = true
+                return self.__text
             end
-             
+
             local now = CurTime()
             local characters = math.Clamp((now - self.birth) * self.cps, 0, #self.__desired_text)
             self.__text = string.sub(self.__desired_text, 1, characters)
@@ -98,7 +98,7 @@ local function TextAnimator(text, cps, offset)
     }
 end
 
---single number quadratic bezier function 
+--single number quadratic bezier function
 local LerpQ = function(T,P0,P1,P2) return Lerp(T,Lerp(T,P0,P1),Lerp(T,P1,P2)) end
 
 --lerp color by input
@@ -116,11 +116,11 @@ end
 
 local function Dialog3Dto2D(entity, rect3d, paint)
     local Frame = g_ContextMenu:Add("DFrame")
-    
+
     Frame.ralphaAnimation = 0
-	Frame.CreationCurtime = CurTime()
+    Frame.CreationCurtime = CurTime()
     Frame.CurTime = 0
-	Frame.OldClose = Frame.Close
+    Frame.OldClose = Frame.Close
     Frame.PostPaint = paint
     Frame.Animator = ToggleableAnimation(0, 1)
     Frame.Animator.enabled = true
@@ -141,10 +141,10 @@ local function Dialog3Dto2D(entity, rect3d, paint)
         local ralphaAnimation = (math.Clamp(Frame.Animator.val,0.5,1)-0.5)/0.5
 
         Frame.ralphaAnimation = ralphaAnimation
-        
+
         local EasingFunc = self.markedfordeath == true and math.ease.OutCubic or math.ease.InCubic
-        local Ease = EasingFunc(alphaAnimation) 
-        
+        local Ease = EasingFunc(alphaAnimation)
+
         if self.markedfordeath then
             local v1 = Frame.Animator.val - 0.72
             self.closingMult = math.ease.OutCubic(math.Clamp(v1, 0, 1) * 2)
@@ -166,7 +166,7 @@ local function Dialog3Dto2D(entity, rect3d, paint)
 			
 			local TLup = TLU:ToScreen() local TRup = TRU:ToScreen()
             local BLup = BLU:ToScreen() local BRup = BRU:ToScreen()
-            
+
             cam.Start2D()
                 local px, py = self:GetPos()
                 local sx, sy = self:GetSize()
@@ -198,13 +198,13 @@ local function Dialog3Dto2D(entity, rect3d, paint)
                         {x = BLx, y = BLy}
                     }
                 )]]
-                
+
                 surface_SetDrawColor(Color(LerpColor(Outline2, Outline, math.ease.InCirc(alphaAnimation))))
                 surface_DrawLine(TLx, TLy, TRx, TRy)
                 surface_DrawLine(TRx, TRy, BRx, BRy)
                 surface_DrawLine(BRx, BRy, BLx, BLy)
                 surface_DrawLine(BLx, BLy, TLx, TLy)
-                
+
             cam.End2D()
 		end
 
@@ -216,8 +216,8 @@ local function Dialog3Dto2D(entity, rect3d, paint)
             self:Close()
         end
     end
-   
-    return Frame 
+
+    return Frame
 end
 
 --draws outline with corners
@@ -374,74 +374,74 @@ local function FixNumSlider(self)
         local size = level * self:GetZoom()
         if size < 5 then return end
         if size > w * 2 then return end
-    
+
         local alpha = 255
-    
+
         if size < 150 then alpha = alpha * ((size - 2) / 140) end
         if size > (w * 2) - 100 then alpha = alpha * (1 - ((size - (w - 50)) / 50 )) end
-    
+
         local halfw = w * 0.5
         local span = math.ceil(w / size)
         local realmid = x + w * 0.5 - (value * self:GetZoom())
         local mid = x + w * 0.5 - math.fmod(value * self:GetZoom(), size)
         local top = h * 0.4
         local nh = h - top
-    
+
         local frame_min = math.floor(realmid + min * self:GetZoom())
         local frame_width = math.ceil(range * self:GetZoom())
         local targetW = math.min(w - math.max( 0, frame_min - x ), frame_width - math.max(0, x - frame_min ))
-    
+
         surface.SetDrawColor( 0, 0, 0, alpha * animationValue1 )
         surface.DrawRect( math.max( x, frame_min ), y + top, targetW, 2 )
-    
+
         surface.SetFont( "DermaDefault" )
-    
+
         for n = -span, span, 1 do
-    
+
             local nx = mid + n * size
-    
+
             if ( nx > x + w || nx < x ) then continue end
-    
+
             local dist = 1 - ( math.abs( halfw - nx + x ) / w )
-    
+
             local val = ( nx - realmid ) / self:GetZoom()
-    
+
             if ( val <= min + 0.001 ) then continue end
             if ( val >= max - 0.001 ) then continue end
-    
+
             surface.SetDrawColor( 0, 0, 0, alpha * dist * animationValue1 )
             surface.SetTextColor( 255, 255, 255, alpha * dist * animationValue1 )
-    
+
             surface.DrawRect( nx, y + top, 2, nh )
-    
+
             local tw, th = surface.GetTextSize( val )
-    
+
             surface.SetTextPos( nx - ( tw * 0.5 ), y + top - th )
             surface.DrawText( val )
-    
+
         end
-    
+
         surface.SetDrawColor( 0, 0, 0, alpha * animationValue1 )
         surface.SetTextColor( 255, 255, 255, alpha * animationValue1 )
-    
+
         local nx = realmid + max * self:GetZoom()
         if ( nx < x + w ) then
             surface.DrawRect( nx, y + top, 2, nh )
-    
+
             local val = max
             local tw, th = surface.GetTextSize( val )
-    
+
             surface.SetTextPos( nx - ( tw * 0.5 ), y + top - th )
             surface.DrawText( val )
         end
-    
+
         local nx = realmid + min * self:GetZoom()
         if ( nx > x ) then
             surface.DrawRect( nx, y + top, 2, nh )
-    
+
             local val = min
             local tw, th = surface.GetTextSize( val )
-    
+
             surface.SetTextPos( nx - ( tw * 0.5 ), y + top - th )
             surface.DrawText( val )
         end
@@ -640,9 +640,9 @@ function ImageStickers.NicerProperties(window, entproperties, ent)
 
         for rowName, row in SortedPairsByMemberValue(cat.Rows, "order") do
             local rrenderOffset = offsetRender()
-            
+
             local oldPerfLayout = row.PerformLayout
-            
+
             if row.Label.SetText then
                 row.Label.TextAnimator = TextAnimator(rowName, nil, rrenderOffset)
                 function row.Label:Paint(w, h)
@@ -652,9 +652,9 @@ function ImageStickers.NicerProperties(window, entproperties, ent)
 
             row.PerformLayout = function(self)
                 oldPerfLayout(self)
-    
+
                 row.Label:SetTextColor(color_white)
-                
+
                 row.Paint = function(self, w, h)
                     if not IsValid(self.Inner) then return end
 
@@ -669,19 +669,19 @@ function ImageStickers.NicerProperties(window, entproperties, ent)
                     else
                         c = Label_Normal
                     end
- 
+
                     self.Label:SetTextColor(Color(LerpColorAlpha(c, math.Clamp((getLifetime() - rrenderOffset) * fadeinSpeed, 0, 1) * window.closingMult)))
-                    
+
                     if self.Label.SetText ~= nil then
                         self.Label:SetText("")
                         self.Label.Text = self.Label.TextAnimator:text()
                     end
-                    
+
                     if self.ExtraPaintOperation then
                         self.ExtraPaintOperation(self.Label:GetTextColor())
                     end
                 end
-                
+
                 local innerItem = nil
                 local children = row.Inner:GetChildren()
 
@@ -689,10 +689,10 @@ function ImageStickers.NicerProperties(window, entproperties, ent)
                     local panelType = v:GetName()
                     if panelType == "DTextEntry" then
                         v.TextAnimator = TextAnimator(ImageStickers.Language.GetPhrase("imagesticker.ui.pastelink"), nil, rrenderOffset)
-                        
-                        row.ExtraPaintOperation = function(color) 
-                            local c2 = hsvAdjust(color, 0, 0.3, 0.5) 
-                            v:SetPlaceholderColor(c2) 
+
+                        row.ExtraPaintOperation = function(color)
+                            local c2 = hsvAdjust(color, 0, 0.3, 0.5)
+                            v:SetPlaceholderColor(c2)
                             v:SetTextColor(color)
                             v:SetPlaceholderText(v.TextAnimator:text())
                         end
@@ -704,15 +704,15 @@ function ImageStickers.NicerProperties(window, entproperties, ent)
                         v.animationStateDepressed = ToggleableAnimation(0, 7)
                         v.animationStateHovered.easing = math.ease.InOutQuart
                         v.animationStateDepressed.easing = math.ease.InOutBack
-                        
+
                         v.TextAnimator = TextAnimator(v.Text or "", nil, rrenderOffset)
 
                         v.Paint = function(self, w, h)
-                            self.animationStateHovered.enabled = self.Hovered 
-                            self.animationStateDepressed.enabled = self.Depressed 
-                    
+                            self.animationStateHovered.enabled = self.Hovered
+                            self.animationStateDepressed.enabled = self.Depressed
+
                             local hovered, depressed = self.Hovered, self.Depressed
-                    
+
                             local color1 = Color(LerpColor(Label_Normal, Label_Selected, self.animationStateHovered:think()))
                             local color2 = Color(LerpColor(color1, Label_Disabled, self.animationStateDepressed:think()))
                             local color3 = Color(LerpColorAlpha(color2, math.Clamp((getLifetime() - rrenderOffset) * fadeinSpeed, 0, 1) * window.closingMult ))
@@ -730,11 +730,11 @@ function ImageStickers.NicerProperties(window, entproperties, ent)
 
                             self.animationState.enabled = checked
                             self.animationState:think()
-                            
+
                             --this sucks =(
                             surface.SetDrawColor(LerpColorAlpha( Color(LerpColor(Outline, Label_Selected, self.animationState.val)), math.Clamp((getLifetime() - rrenderOffset) * fadeinSpeed, 0, 1) * window.closingMult ))
                             surface.DrawOutlinedRect(0, 0, w, h, 1)
-                            
+
                             if self.animationState.val >= 0 then
                                 DrawLine(2, h / 2, w * 0.4, h - 2, 2, self.animationState.val * 2)
                                 DrawLine(w * 0.4, h - 2, w - 2, 4, 2, (self.animationState.val - 0.5) * 2)
@@ -793,10 +793,10 @@ local edit_imagestickers = {
         window.btnClose.animationStateDepressed = ToggleableAnimation(0, 7)
         window.btnClose.animationStateHovered.easing = math.ease.InOutQuart
         window.btnClose.animationStateDepressed.easing = math.ease.InOutBack
-        
+
         window.btnClose.Paint = function(self, w, h)
-            self.animationStateHovered.enabled = self.Hovered 
-            self.animationStateDepressed.enabled = self.Depressed 
+            self.animationStateHovered.enabled = self.Hovered
+            self.animationStateDepressed.enabled = self.Depressed
 
             local hovered, depressed = self.Hovered, self.Depressed
 
@@ -845,7 +845,7 @@ local edit_imagestickers = {
         function control:RebuildControls()
             self:Clear()
             if not IsValid(self.m_Entity) then return end
-            
+
             local editor = self.m_Entity.__propertiesandtriggers
 
             local i = 1000
@@ -856,7 +856,7 @@ local edit_imagestickers = {
 
                 i = i + 1
             end
-            
+
             for name, edit in SortedPairsByMemberValue(editor, "order") do
                 self:EditVariable(name, edit)
             end
@@ -882,7 +882,7 @@ local edit_imagestickers = {
 
             if item.PropertyType == "Property" then
                 row:Setup(edit.type, edit)
-                
+
                 row.DataUpdate = function(_)
                     if not IsValid(self.m_Entity) then self:EntityLost() return end
                     row:SetValue(self.m_Entity:GetNetworkKeyValue(varname))
@@ -912,7 +912,7 @@ local edit_imagestickers = {
 
                 function b.DoClick(_)
                     if not IsValid(self.m_Entity) then self:EntityLost() return end
-                    
+
                     local shf, clf = ent.__propertiesandtriggers[varname].DoShared, ent.__propertiesandtriggers[varname].DoClientside
                     if shf then shf(ent) end
                     if clf then clf(ent) end
@@ -935,7 +935,7 @@ local edit_imagestickers = {
 			window:Remove()
 		end
 
-        ImageStickers.NicerProperties(window, control, ent) 
+        ImageStickers.NicerProperties(window, control, ent)
 
         local notice = control:GetCanvas():Add(textNotice)
         notice.window = window

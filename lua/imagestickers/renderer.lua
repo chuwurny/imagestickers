@@ -37,16 +37,16 @@ function ImageStickers.AnimationSmoother(f, z, r, x)
     self.k2 = 1 / ((2 * pi * f) * (2 * pi * f))
     self.k3 = r * z / (2 * pi * f)
     self.tcrit = 0.8 * (math.sqrt(4 * self.k2  + self.k1 * self.k1) - self.k1)
-    
+
     self.xp = x
     self.y = x
     self.yd = 0
-    
+
     self.lastupdate = CurTime()
     local tolerance = 0.01
     function self:update(x, xd)
         if self.y - tolerance <= x and x <= self.y + tolerance then return x end
-        
+
         local t = CurTime() - self.lastupdate
         if t == 0 then return x end
 
@@ -54,15 +54,15 @@ function ImageStickers.AnimationSmoother(f, z, r, x)
             xd = (x - self.xp)
             self.xp = x
         end
-        
+
         local iterations = math.ceil(t / self.tcrit)
         t = t / iterations
-        
+
         for i = 0, iterations do
             self.y = self.y + t * self.yd
             self.yd = self.yd + t * (x + self.k3 * xd - self.y - self.k1 * self.yd) / self.k2
         end
-        
+
         self.lastupdate = CurTime()
 
         return self.y
@@ -110,7 +110,7 @@ function ImageStickers.RenderAnimatedBorder(self, w, h)
     local offsetV = math.ease.OutElastic(offset) * 32
     local alphaA = math.ease.OutQuad(offset) * 255
     surface.SetDrawColor(Color(200, 235, 255, 255 - alphaA))
-    
+
     surface.DrawLine(-w - offsetV, -h - offsetV, w + offsetV, -h - offsetV) --top line
     surface.DrawLine(-w - offsetV, h + offsetV, w + offsetV, h + offsetV) --bottom line
 
@@ -140,13 +140,13 @@ function ImageStickers.GetBorderRect3D(self)
     if image ~= nil and image.errored == false and image.material ~= nil then
         local imageScale = self:GetImageScale()
         local imageScaleX, imageScaleY = math_Clamp(imageScale * self:GetImageScaleX(), 0, 32), math_Clamp(imageScale * self:GetImageScaleY(), 0, 32)
-        
+
         local tw, th = image.width / 3, image.height / 3
         tw = tw * 0.08
         th = th * 0.08
 
-        h = math_Clamp(tw * imageScaleX, 0.1, 9000000) 
-        w = math_Clamp(th * imageScaleY, 0.1, 90000000) 
+        h = math_Clamp(tw * imageScaleX, 0.1, 9000000)
+        w = math_Clamp(th * imageScaleY, 0.1, 90000000)
     else
         w = 146 * 0.08
         h = 146 * 0.08
@@ -192,7 +192,7 @@ function ImageStickers.RenderImageOntoSticker(self)
         image_loading = image.loading
         image_material = image.material
     end
-    
+
     local shouldDraw2D = true
     local w, h = 0, 0
     local isRenderingImage = false
@@ -211,17 +211,17 @@ function ImageStickers.RenderImageOntoSticker(self)
 
             local imageScaleX, imageScaleY = math_Clamp(imageScale * self:GetImageScaleX(), 0, 32), math_Clamp(imageScale * self:GetImageScaleY(), 0, 32)
 
-            w = math_Clamp(w * imageScaleX, 0.1, 9000000) 
-            h = math_Clamp(h * imageScaleY, 0.1, 90000000) 
+            w = math_Clamp(w * imageScaleX, 0.1, 9000000)
+            h = math_Clamp(h * imageScaleY, 0.1, 90000000)
 
             self.Smoothing.ScaleX:update(w)
             self.Smoothing.ScaleY:update(h)
             self.Smoothing.Angle:update(self:GetImageAngle())
-            
+
             if self:GetShouldImageGlow() then render_SuppressEngineLighting(true) end
 
             render_SetMaterial(image_material)
-            
+
             local magicnumber = ImageStickers.SizeMagicNumber
 
             if self:GetShrinkwrap() then -- Shrinkwrap rendering mode
@@ -231,34 +231,34 @@ function ImageStickers.RenderImageOntoSticker(self)
                 m:Translate(self:GetPos())
                 m:Rotate(self:GetAngles())
                 m:Scale(Vector(1, 1, 1))
-                
+
                 isRenderingImage = true
                 local points
                 cam_PushModelMatrix(m)
                     if self:GetDrawShrinkwrapGizmo() and self.StickerOwner == LocalPlayer():SteamID() then
                         render_DrawQuadEasy(imagePosition + Vector(0,0,1), imageNormal, self.Smoothing.ScaleX.y/magicnumber, self.Smoothing.ScaleY.y/magicnumber, Color(255,255,255,255), 180 - self.Smoothing.Angle.y)
                         render_SetMaterial(nolighting)
-                        
+
                         do -- Draw the preview gizmo
                             render.DrawSphere(Vector(0,0,0), 2, 16, 8, Color(255,255,255,125))
                             local s = Vector(self.Smoothing.ScaleY.y/magicnumber/2, self.Smoothing.ScaleX.y/magicnumber/2, 0.5)
                             render.DrawWireframeBox(Vector(0,0,0), Angle(0,0,0), -s, s, Color(255,255,255,80), true)
                             render.DrawBox(Vector(0,0,0), Angle(0,0,0), -Vector(s.x, s.y, 327.68), Vector(s.x, s.y, 0), Color(215,235,255,25))
-                            
+
                             local arrowLength    = 32 -- Length of arrow
                             local arrowSize      = 2  -- How wide the arrow head will be
                             local arrowPokeySize = 8  -- How tall the arrow head will be
                             local arrowRate      = 2  -- How fast the arrow head spins
                             local arrowFidelity  = 4  -- How many points the arrow head has
                             render.DrawLine(Vector(0,0,0), Vector(0,0,-arrowLength), Color(255,255,255,200), true)
-                            
+
                             for i = 0, arrowFidelity - 1 do
                                 local coff     = (math.pi / (arrowFidelity / i))       * 2
                                 local coffNext = (math.pi / (arrowFidelity / (i + 1))) * 2
 
                                 local s,  c  = math.sin(CurTime() * arrowRate + coff),     math.cos(CurTime() * arrowRate + coff)
                                 local sn, cn = math.sin(CurTime() * arrowRate + coffNext), math.cos(CurTime() * arrowRate + coffNext)
-                                
+
                                 -- The lines that draw from the arrow tip, to the base of the arrow head
                                 render.DrawLine(Vector(s * arrowSize,c * arrowSize,-arrowLength + arrowPokeySize), Vector(0,0,-arrowLength), Color(255,255,255,200), true)
                                 -- The lines that draw from the base of the arrow head back into the arrow shaft
@@ -269,7 +269,7 @@ function ImageStickers.RenderImageOntoSticker(self)
 
                             -- Approximate renderer of the shrinkwrap (using physics mesh only for performance)
                             points = ImageStickers.Shrinkwrap.RecalculatePoints(self, self:GetShrinkwrapXRes(), self:GetShrinkwrapYRes(), self:GetShrinkwrapOffset(), 1, self:GetShrinkwrapCullMisses()).points
-                            
+
                             for y = 1, #points - 1 do
                                 local row = points[y]
                                 for x = 1, #row - 1 do
@@ -291,7 +291,7 @@ function ImageStickers.RenderImageOntoSticker(self)
                         self.ShrinkwrapMesh:Draw()
                     end
                 cam_PopModelMatrix()
-                
+
                 -- for normal checks (normals may still be messed up...)
                 --[[
                 for y = 1, #points - 1 do
@@ -309,18 +309,18 @@ function ImageStickers.RenderImageOntoSticker(self)
                     m:Translate(self:GetPos())
                     m:Rotate(self:GetAngles())
                     m:Scale(Vector(1, 1, 1))
-                    
+
                 isRenderingImage = true
                 cam_PushModelMatrix(m)
                     render_DrawQuadEasy(imagePosition, imageNormal, self.Smoothing.ScaleX.y/magicnumber, self.Smoothing.ScaleY.y/magicnumber, color_white, 180 - self.Smoothing.Angle.y)
                 cam_PopModelMatrix()
             end
-            render_SuppressEngineLighting(false) 
+            render_SuppressEngineLighting(false)
         end
     end
 
     local drawRenderAnimatedBorder = hoveredEnt == self
-    
+
     if drawRenderAnimatedBorder or shouldDraw2D or renderDebuggingInformation then
         local lv, la = self:LocalToWorld(Vector(0, 0,0.5)), self:LocalToWorldAngles(Angle(0,90,00))
         cam_Start3D2D(lv, la, 0.08)
@@ -329,7 +329,7 @@ function ImageStickers.RenderImageOntoSticker(self)
             else
                 if image_errored ~= true and image_loading ~= true then
                     TextResult = nil
-                    
+
                     if renderDebuggingInformation then
                         render_DrawLine(Vector(w, -h, -2), Vector(w, h, -2))
                         render_DrawLine(Vector(-w, -h, -2), Vector(w, -h, -2))
@@ -351,7 +351,7 @@ function ImageStickers.RenderImageOntoSticker(self)
                     TextResult = ImageStickers.Language.GetPhrase("imagesticker.errored", "Errored:") .. " " .. image_error
                 end
             end
-            
+
             if drawRenderAnimatedBorder then
                 if not isRenderingImage then
                     w = 146 * 1
@@ -367,7 +367,7 @@ function ImageStickers.RenderImageOntoSticker(self)
                 local padding = 12
                 X = X + padding
                 Y = Y + padding
-                
+
                 surface_SetDrawColor(0, 0, 0, 125)
                 surface_DrawOutlinedRect(-boxSize, -boxSize, boxSize*2, boxSize*2, 8)
                 surface_DrawRect(-X / 2, -Y / 2, X, Y)

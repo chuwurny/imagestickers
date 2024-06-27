@@ -85,40 +85,40 @@ local function Bytestream(data)
     local obj = {} do
         obj.data = data or ""
         obj.pointer = 1
-        
+
         -- Internal Seeking/Writing/Reading Functions
 
         function obj:eof()
             return self.pointer > #self.data
         end
 
-        function obj:advance(p) 
-            p = p or 1 
-            self.pointer = self.pointer + p 
+        function obj:advance(p)
+            p = p or 1
+            self.pointer = self.pointer + p
         end
 
-        function obj:backup(p)  
-            p = p or 1 
-            self.pointer = self.pointer - p 
+        function obj:backup(p)
+            p = p or 1
+            self.pointer = self.pointer - p
         end
 
-        function obj:peek(p) 
+        function obj:peek(p)
             p = p or 0
-            if self:eof() then 
-                error("cannot read further; end-of-file[" .. #self.data .. "]") 
-            end 
-            return self.data[self.pointer + p] 
+            if self:eof() then
+                error("cannot read further; end-of-file[" .. #self.data .. "]")
+            end
+            return self.data[self.pointer + p]
         end
 
-        function obj:push(s) 
-            self.data = self.data .. s 
+        function obj:push(s)
+            self.data = self.data .. s
             self:advance(#s)
         end
 
-        function obj:seek(p) 
+        function obj:seek(p)
             self.pointer = p
         end
-        
+
         -- Read Functions
 
         function obj:readAngle()
@@ -128,13 +128,13 @@ local function Bytestream(data)
         function obj:readByte()
             return tobyte[self:readChar()]
         end
-        
+
         function obj:readBytes(n)
             local bytes = {}
             for i = 1, n do bytes[i] = self:readByte() end
             return bytes
         end
-        
+
         function obj:readChar()
             local r = self:peek()
             self:advance()
@@ -153,7 +153,7 @@ local function Bytestream(data)
         function obj:readInt(bits)
             if bits % 8 ~= 0 then error("int length must be multiple of 8") end
             if bits > 32 then error("int length must be int32 or less") end
-            
+
             local bytes = math.floor(bits / 8)
             local shift = 0
             local v = 0
@@ -161,7 +161,7 @@ local function Bytestream(data)
                 v = v + lshift(self:readByte(), shift)
                 shift = shift + 8
             end
-            
+
             if bits < 32 then -- 32-bit integers work fine, but less than need to be dealt with a bit differently
                 local t = band(lshift(1, bits-1), v)
                 if t == lshift(1, bits-1) then
@@ -183,21 +183,21 @@ local function Bytestream(data)
             self:advance()
             return s
         end
-        
+
         function obj:readUInt(bits)
             local v = self:readInt(bits)
-            
+
             if v < 0 then
                 return bor(2^(bits-1), v)
             end
-    
+
             return v
         end
 
         function obj:readVector()
             return Vector(self:readFloat(),self:readFloat(),self:readFloat())
         end
-        
+
         -- Writing Functions
 
         function obj:writeAngle(a)
@@ -205,7 +205,7 @@ local function Bytestream(data)
             self:writeFloat(a.yaw)
             self:writeFloat(a.roll)
         end
-        
+
         function obj:writeByte(b)
             if b == nil then error("no input to bytestream:writeByte") end
             if b % 1 ~= 0 then b = math.Round(b) end
@@ -215,7 +215,7 @@ local function Bytestream(data)
         function obj:writeBytes(...)
             local t = {...}
             if type(t[1]) == "table" then t = t[1] end
-            
+
             for _, v in ipairs(t) do self:writeByte(v) end
         end
 
@@ -223,7 +223,7 @@ local function Bytestream(data)
             if c == nil then error("no input to bytestream:writeChar") end
             self:push(c)
         end
-        
+
         function obj:writeColor(c)
             self:writeUInt(c.r, 8)
             self:writeUInt(c.g, 8)
@@ -239,12 +239,12 @@ local function Bytestream(data)
         function obj:writeInt(n, bits)
             if bits % 8 ~= 0 then error("int length must be multiple of 8") end
             if bits > 32 then error("int length must be int32 or less") end
-            
-            if n % 1 ~= 0 then 
-                n = math.Round(n) 
+
+            if n % 1 ~= 0 then
+                n = math.Round(n)
                 print("trying to write floating point value as int. will continue, but the value will be rounded; use writeFloat if this is unintended...")
             end
-            
+
             local bytes = math.floor(bits / 8)
             for i = 1, bytes do
                 self:writeByte(band(n, 0xFF))
@@ -268,7 +268,7 @@ local function Bytestream(data)
         function obj:dump()
             return self.data
         end
-        
+
     end return obj
 end
 

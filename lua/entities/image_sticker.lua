@@ -17,16 +17,16 @@ ENT.Spawnable		= true
 ENT.AdminOnly       = false
 
 function ENT:SpawnFunction(ply, tr, classname)
-	if not tr.Hit then return end
+    if not tr.Hit then return end
 
-	local SpawnPos = tr.HitPos + tr.HitNormal * 16
+    local SpawnPos = tr.HitPos + tr.HitNormal * 16
 
-	local ent = ents.Create(classname)
-	ent:SetPos(SpawnPos)
+    local ent = ents.Create(classname)
+    ent:SetPos(SpawnPos)
     ent:SetAngles(Angle(0, ply:EyeAngles().y + 180, 0))
-	ent:Spawn()
-	ent:Activate()
-	return ent
+    ent:Spawn()
+    ent:Activate()
+    return ent
 end
 
 function ENT:InitializeProperties()
@@ -65,7 +65,7 @@ function ENT:AddProperty(Type, Name, Keyname, Title, Category, AdditionalKeys, D
     tbl.Edit.category = use_phrases and ImageStickers.Language.GetPhrase(Category) or Category
 
     if AdditionalKeys ~= nil then
-        for k, v in pairs(AdditionalKeys) do 
+        for k, v in pairs(AdditionalKeys) do
             tbl.Edit[k] = v
         end
     end
@@ -82,16 +82,16 @@ function ENT:AddProperty(Type, Name, Keyname, Title, Category, AdditionalKeys, D
     self.__propertiesandtriggers[Keyname] = tbl
 end
 
-if SERVER then 
-    util.AddNetworkString("march.imagestickers.enttriggers") 
-    util.AddNetworkString("march.imagestickers.shrinkwrapmesh") 
+if SERVER then
+    util.AddNetworkString("march.imagestickers.enttriggers")
+    util.AddNetworkString("march.imagestickers.shrinkwrapmesh")
     net.Receive("march.imagestickers.enttriggers", function(len, ply)
         local ent = net.ReadEntity()
         if not IsValid(ent) then return end
 
         local trigger = net.ReadString()
-        if ent.__propertiesandtriggers[trigger] == nil or ent.__propertiesandtriggers[trigger].PropertyType ~= "Trigger" then 
-            return print("enttrigger failure: no such trigger named '" .. trigger .. "'") 
+        if ent.__propertiesandtriggers[trigger] == nil or ent.__propertiesandtriggers[trigger].PropertyType ~= "Trigger" then
+            return print("enttrigger failure: no such trigger named '" .. trigger .. "'")
         end
 
         local CanEdit = hook.Run("CanEditVariable", ent, ply, key, "N/A", ent.__propertiesandtriggers[trigger])
@@ -108,7 +108,7 @@ if SERVER then
 end
 
 net.Receive("march.imagestickers.ask_shrinkwrap", function(len, ply)
-    if SERVER then 
+    if SERVER then
         local ent = net.ReadEntity()
         if ent.pointfile == nil then return end
 
@@ -117,7 +117,7 @@ net.Receive("march.imagestickers.ask_shrinkwrap", function(len, ply)
         net.WriteData(ent.pointfile, #ent.pointfile)
         return net.Send(ply)
     end
-    
+
     local datalen = net.ReadUInt(16)
     local pointfile = net.ReadData(datalen)
 
@@ -132,11 +132,11 @@ net.Receive("march.imagestickers.shrinkwrapmesh", function(len, ply)
 
         local datalen = net.ReadUInt(16)
         local pointfile = net.ReadData(datalen)
-        
+
         local points = ImageStickers.Shrinkwrap.ReadPoints(pointfile)
         ImageStickers.Shrinkwrap.RecalculateMesh(ent, points)
     end
-    
+
     if SERVER then
         local ent = net.ReadEntity()
         if not IsValid(ent) then return end
@@ -222,13 +222,13 @@ function ENT:SetupDataTables()
         local pointstring = ImageStickers.Shrinkwrap.WritePoints(points)
         ImageStickers.Shrinkwrap.UpdateShrinkwrap(self, pointstring)
     end)
-    
+
     self:AddProperty("Bool",    "DrawShrinkwrapGizmo",       nil, "imagesticker.ui.drawshrinkwrapgizmo",    "imagesticker.ui.category_shrinkwrap", nil, true)
  end
 
  function ENT:Initialize()
     self:DrawShadow(false)
-    if CLIENT then 
+    if CLIENT then
         local uid = "imagestickers.wait4owner" .. string.Replace(SysTime(), ".", "_")
         ImageStickers.AskOwner(self)
         timer.Create(uid, 0.5, 0, function()
@@ -260,28 +260,28 @@ function ENT:SetupDataTables()
         self.ShrinkwrapMesh = Mesh()
         self.Updates = {
             {
-                check = function(x) return x:GetColor() end, change = function(self, ent) 
+                check = function(x) return x:GetColor() end, change = function(self, ent)
                     local c = self.value
-                    
+
                     ent.image.material:SetVector("$color", Vector(c.r / 255, c.g / 255, c.b / 255))
                     ent.image.material:SetFloat("$alpha", c.a / 255)
                 end
             },
-            {   check = function(x) return x:GetAdditive() end, change = function(self, ent) 
+            {   check = function(x) return x:GetAdditive() end, change = function(self, ent)
                     ent.image.material:SetInt("$flags", ImageStickers.GetFlags(ent))
-                end 
+                end
             },
-            {   check = function(x) return x:GetShouldImageTestAlpha() end, change = function(self, ent) 
+            {   check = function(x) return x:GetShouldImageTestAlpha() end, change = function(self, ent)
                     ent.image.material:SetInt("$flags", ImageStickers.GetFlags(ent))
-                end 
+                end
             },
-            {   check = function(x) return x:GetTranslucency() end, change = function(self, ent) 
+            {   check = function(x) return x:GetTranslucency() end, change = function(self, ent)
                     ent.image.material:SetInt("$flags", ImageStickers.GetFlags(ent))
-                end 
+                end
             },
-            {   check = function(x) return x:GetNocull() end, change = function(self, ent) 
+            {   check = function(x) return x:GetNocull() end, change = function(self, ent)
                     ent.image.material:SetInt("$flags", ImageStickers.GetFlags(ent))
-                end 
+                end
             }
         }
 
@@ -302,11 +302,11 @@ function ENT:SetupDataTables()
             end
         end
     end
-    
+
 end
 
 --Trick to make Wiremod think this is a GPU renderscreen.
---Only really made for EGP:egpMaterialFromScreen() 
+--Only really made for EGP:egpMaterialFromScreen()
 
 function ENT:ForceGPU()
     if not self.image or self.image.errored or self.image.loading then return end
@@ -379,7 +379,7 @@ function ENT:CreateImage(materialData, animated, link, imgurID)
         ["$vertexalpha"] = 1,
         ["$vertexcolor"] = 1,
         ["$vertexalphatest"] = 1,
-      } 
+      }
     )
     mat:SetInt("$flags", 0)
 
@@ -406,11 +406,11 @@ function ENT:ProcessImageURL(new)
         self.image:setError(linkorerr)
     else
         if imagecache[imgurID] == nil then
-            http.Fetch("https://" .. linkorerr, 
+            http.Fetch("https://" .. linkorerr,
                 function(body, size, headers, code)
                     if code == 404 then
                         self.image = self:NewImageStruct()
-                        self.image:setError("Not found [404]") 
+                        self.image:setError("Not found [404]")
                         return
                     end
 
@@ -436,7 +436,7 @@ function ENT:ProcessImageURL(new)
                 function(err)
                     self.image = self:NewImageStruct()
                     self.image:setError("Bad HTTP: " .. err)
-                end, 
+                end,
             {})
         else
             local materialData = imagecache[imgurID]

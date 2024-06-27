@@ -32,7 +32,7 @@ if CLIENT then
         net.WriteEntity(ent)
         net.SendToServer()
     end
-    
+
     net.Receive("march.imagestickers.assignowner", function()
         local ent, ply = net.ReadEntity(), net.ReadString()
         if ply == "" then return end
