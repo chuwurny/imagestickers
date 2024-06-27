@@ -29,12 +29,12 @@ local function DrawLine(sx, sy, ex, ey, size, fraction)
     ex, ey = Lerp(fraction, sx, ex), Lerp(fraction, sy, ey)
 
     local cx = (sx + ex) / 2
-	local cy = (sy + ey) / 2
-	
-	local w = math.sqrt( (ex-sx) ^ 2 + (ey-sy) ^ 2 )
-	local angle = math.deg(math.atan2(sy-ey,ex-sx))
-	draw.NoTexture()
-	surface_DrawTexturedRectRotated(cx, cy, w, size, angle)
+    local cy = (sy + ey) / 2
+
+    local w = math.sqrt( (ex-sx) ^ 2 + (ey-sy) ^ 2 )
+    local angle = math.deg(math.atan2(sy-ey,ex-sx))
+    draw.NoTexture()
+    surface_DrawTexturedRectRotated(cx, cy, w, size, angle)
 end
 
 --hsvadjust color in one function
@@ -154,17 +154,17 @@ local function Dialog3Dto2D(entity, rect3d, paint)
         end
 
         if Ease ~= 1 then
-			local bezUp = LocalPlayer():GetPos():Distance(entity:GetPos())/4
-		
-			local TLU = entity:LocalToWorld((entity:WorldToLocal(rect3d.TL) + Vector(0,0,bezUp)))
-			local TRU = entity:LocalToWorld((entity:WorldToLocal(rect3d.TR) + Vector(0,0,bezUp)))
-			local BLU = entity:LocalToWorld((entity:WorldToLocal(rect3d.BL) + Vector(0,0,bezUp)))
-			local BRU = entity:LocalToWorld((entity:WorldToLocal(rect3d.BR) + Vector(0,0,bezUp)))
-			
+            local bezUp = LocalPlayer():GetPos():Distance(entity:GetPos())/4
+
+            local TLU = entity:LocalToWorld((entity:WorldToLocal(rect3d.TL) + Vector(0,0,bezUp)))
+            local TRU = entity:LocalToWorld((entity:WorldToLocal(rect3d.TR) + Vector(0,0,bezUp)))
+            local BLU = entity:LocalToWorld((entity:WorldToLocal(rect3d.BL) + Vector(0,0,bezUp)))
+            local BRU = entity:LocalToWorld((entity:WorldToLocal(rect3d.BR) + Vector(0,0,bezUp)))
+
             local TL = rect3d.TL:ToScreen() local TR = rect3d.TR:ToScreen()
             local BL = rect3d.BL:ToScreen() local BR = rect3d.BR:ToScreen()
-			
-			local TLup = TLU:ToScreen() local TRup = TRU:ToScreen()
+
+            local TLup = TLU:ToScreen() local TRup = TRU:ToScreen()
             local BLup = BLU:ToScreen() local BRup = BRU:ToScreen()
 
             cam.Start2D()
@@ -206,11 +206,11 @@ local function Dialog3Dto2D(entity, rect3d, paint)
                 surface_DrawLine(BLx, BLy, TLx, TLy)
 
             cam.End2D()
-		end
+        end
 
-		if self.PostPaint then
-			self.PostPaint(self, w , h)
-		end
+        if self.PostPaint then
+            self.PostPaint(self, w , h)
+        end
 
         if Ease <= 0 and self.markedfordeath == true then
             self:Close()
@@ -462,10 +462,10 @@ local function FixNumSlider(self)
     end
 
     self.Slider.Paint = function(panel, w, h)
-	    surface.SetDrawColor(hsvAdjust(self.TextArea:GetTextColor(), 0, 0.6, 0.5))
-    	surface.DrawRect(8, h / 2 - 1, w - 15, 1)
+        surface.SetDrawColor(hsvAdjust(self.TextArea:GetTextColor(), 0, 0.6, 0.5))
+        surface.DrawRect(8, h / 2 - 1, w - 15, 1)
 
-	    paintSliderNotches(8, h / 2 - 1, w - 16, 1, panel:GetNotches())
+        paintSliderNotches(8, h / 2 - 1, w - 16, 1, panel:GetNotches())
     end
 
     --Why is Depressed not on the Knob??
@@ -507,13 +507,13 @@ local function FixNumSlider(self)
     end
 end
 
-local function vscrollbarInject(animated_parent, object) 
+local function vscrollbarInject(animated_parent, object)
     local window = animated_parent
     object.createdTime = CurTime()
 
     object.ScrollwheelBackgroundColor = Outline
     object.ScrollwheelForegroundColor = Outline2
-    
+
     function object:OnMouseWheeled( dlta )
         if not self:IsVisible() then return false end
         self:AnimateTo(self:GetScroll() + (dlta * -48), 0.2, 0, 0.5)
@@ -523,34 +523,34 @@ local function vscrollbarInject(animated_parent, object)
 
     end
 
-	function object:Paint(w, h)	end
+    function object:Paint(w, h)	end
 
-	function object.btnUp:Paint(w, h)
+    function object.btnUp:Paint(w, h)
         local cval = math.Clamp((window.getLifetime() - 1) * (1), 0, 1) * window.closingMult
 
         local w2, h2 = w / 2, h / 2
 
         local arrowWidth, arrowHeight = 4, -2
         surface_SetDrawColor(LerpColorAlpha(object.ScrollwheelForegroundColor, cval))
-        
+
         surface_DrawLine(w2 - arrowWidth, h2 - arrowHeight, w2, h2 + arrowHeight)
         surface_DrawLine(w2 + (arrowWidth-1), h2 - arrowHeight, w2, h2 + arrowHeight)
-	end
-	
-	function object.btnDown:Paint(w, h)
+    end
+
+    function object.btnDown:Paint(w, h)
         local cval = math.Clamp((window.getLifetime() - 1) * (1), 0, 1) * window.closingMult
 
         local w2, h2 = w / 2, h / 2
-        
+
         local arrowWidth, arrowHeight = 4, 2
         surface_SetDrawColor(LerpColorAlpha(object.ScrollwheelForegroundColor, cval))
 
         surface_DrawLine(w2 - arrowWidth, h2 - arrowHeight, w2, h2 + arrowHeight)
         surface_DrawLine(w2 + (arrowWidth-1), h2 - arrowHeight, w2, h2 + arrowHeight)
-	end
-	
+    end
+
     local gripWidth = 4
-	function object.btnGrip:Paint(w, h)
+    function object.btnGrip:Paint(w, h)
         local cval = math.Clamp((window.getLifetime() - 1) * (1), 0, 1) * window.closingMult
 
         if not self.anim then
@@ -561,7 +561,7 @@ local function vscrollbarInject(animated_parent, object)
         local w2, h2 = w / 2, h / 2
 
         draw.RoundedBox(3, gripWidth, 0, w-(gripWidth*2), h, Color(LerpColorAlpha(object.ScrollwheelForegroundColor, cval)))
-	end
+    end
 end
 
 local fadeinSpeed = 6
@@ -623,7 +623,7 @@ function ImageStickers.NicerProperties(window, entproperties, ent)
                 surface.DrawOutlinedRect(5, 3, w-6, h-6, 1)
 
                 draw.NoTexture()
-	            surface.DrawTexturedRectRotated(10, 8, 6, 1, 0)
+                surface.DrawTexturedRectRotated(10, 8, 6, 1, 0)
                 surface.DrawTexturedRectRotated(10, 8, 6, 1, 90 * self.animatePlus:think())
             end
 
@@ -750,42 +750,42 @@ function ImageStickers.NicerProperties(window, entproperties, ent)
 end
 
 local textNotice = vgui.RegisterTable( {
-	Init = function( self )
-		self:Dock(TOP)
-		self.Label = self:Add( "DLabel" )
-	end,
+    Init = function( self )
+        self:Dock(TOP)
+        self.Label = self:Add( "DLabel" )
+    end,
 
-	PerformLayout = function( self )
-		self.Label.textColor = color_white
-		self.Label:DockMargin(4, 0, 0, 0)
-	end,
-	Paint = function(self, w, h) 
+    PerformLayout = function( self )
+        self.Label.textColor = color_white
+        self.Label:DockMargin(4, 0, 0, 0)
+    end,
+    Paint = function(self, w, h)
         self.Label:SetTextColor(Color(LerpColorAlpha(self.Label.textColor, math.Clamp((self.window.getLifetime() - self.renderOffset) * fadeinSpeed, 0, 1) * self.window.closingMult)))
     end
 }, "Panel" )
 
 
 local edit_imagestickers = {
-	MenuLabel = ImageStickers.Language.GetPhrase("imagesticker.openprompt"),
-	Order = 90001,
-	PrependSpacer = true,
-	MenuIcon = "icon16/image_edit.png",
+    MenuLabel = ImageStickers.Language.GetPhrase("imagesticker.openprompt"),
+    Order = 90001,
+    PrependSpacer = true,
+    MenuIcon = "icon16/image_edit.png",
 
-	Filter = function(self, ent, ply)
+    Filter = function(self, ent, ply)
         if not IsValid(ent) then return false end
         if ent:GetClass() ~= "image_sticker" then return false end
         return true
-	end,
+    end,
 
-	Action = function(self, ent)
-		local window = Dialog3Dto2D(ent, ent:GetBorderRect3D())
+    Action = function(self, ent)
+        local window = Dialog3Dto2D(ent, ent:GetBorderRect3D())
         window.IsImageStickerDialog = true
 
-		window:SetSize(700, 500)
-		window:SetTitle("")
+        window:SetSize(700, 500)
+        window:SetTitle("")
         window.lblTitle:SetTextColor(Label_Normal)
-		window:Center()
-		window:SetSizable(true)
+        window:Center()
+        window:SetSizable(true)
 
         window.btnMaxim:Hide()
         window.btnMinim:Hide()
@@ -815,7 +815,7 @@ local edit_imagestickers = {
             DrawLine(w2 + xSize, h2 - xSize, w2 - xSize, h2 + xSize, 2, 1)
         end
 
-		local control = window:Add("DEntityProperties")
+        local control = window:Add("DEntityProperties")
 
         --a trick to make the animating properties animate in order
         --there's probably a function that returns this, but I CBA to find it
@@ -824,7 +824,7 @@ local edit_imagestickers = {
         local oldGetCategory = control.GetCategory
         function control:GetCategory(name, bCreate)
             local cat = self.Categories[name]
-	        if IsValid(cat) then return cat end
+            if IsValid(cat) then return cat end
 
             local cat = oldGetCategory(self, name, bCreate)
             cat.zpos = zPosCat
@@ -927,13 +927,13 @@ local edit_imagestickers = {
             end
         end
 
-		control:SetEntity(ent)
-		control:Dock(FILL)
+        control:SetEntity(ent)
+        control:Dock(FILL)
         window.Properties = control
 
-		control.OnEntityLost = function()
-			window:Remove()
-		end
+        control.OnEntityLost = function()
+            window:Remove()
+        end
 
         ImageStickers.NicerProperties(window, control, ent)
 
@@ -954,7 +954,7 @@ local edit_imagestickers = {
         notice3.renderOffset = window.offsetRender()
         notice3.Label:SetText(ImageStickers.Language.GetPhrase("imagesticker.ui.notify_transpencytip"))
         notice3.Label:Dock(BOTTOM)
-	end
+    end
 }
 
 properties.Add("edit.imagestickers", edit_imagestickers)

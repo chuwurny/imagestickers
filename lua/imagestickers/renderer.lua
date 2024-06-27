@@ -152,9 +152,9 @@ function ImageStickers.GetBorderRect3D(self)
 
     return {
         TL = self:LocalToWorld(Vector(-w*1,-h*1,1.6)),
-		TR = self:LocalToWorld(Vector(-w*1,h*1,1.6)),
-		BL = self:LocalToWorld(Vector(w*1,-h*1,1.6)),
-		BR = self:LocalToWorld(Vector(w*1,h*1,1.6))
+        TR = self:LocalToWorld(Vector(-w*1,h*1,1.6)),
+        BL = self:LocalToWorld(Vector(w*1,-h*1,1.6)),
+        BR = self:LocalToWorld(Vector(w*1,h*1,1.6))
     }
 end
 
@@ -176,7 +176,7 @@ function ImageStickers.RenderImageOntoSticker(self)
     end
 
     --local stopwatchStart = SysTime()
-    
+
     ImageStickers.UpdateAnimatedBorder(self, hoveredEnt == self)
 
     local TextResult = ""

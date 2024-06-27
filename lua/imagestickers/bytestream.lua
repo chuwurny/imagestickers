@@ -18,65 +18,65 @@ end
 
 -- next two functions are ripped from StarfallEx https://github.com/thegrb93/StarfallEx/blob/97d9b7f2fefaf748cd64717a90cd54f9177f983b/lua/starfall/libs_sh/bit.lua#L52
 local function PackIEEE754Float(number)
-	if number == 0 then
-		return 0x00, 0x00, 0x00, 0x00
-	elseif number == math_huge then
-		return 0x00, 0x00, 0x80, 0x7F
-	elseif number == -math_huge then
-		return 0x00, 0x00, 0x80, 0xFF
-	elseif number ~= number then
-		return 0x00, 0x00, 0xC0, 0xFF
-	else
-		local sign = 0x00
-		if number < 0 then
-			sign = 0x80
-			number = -number
-		end
-		local mantissa, exponent = math_frexp(number)
-		exponent = exponent + 0x7F
-		if exponent <= 0 then
-			mantissa = math_ldexp(mantissa, exponent - 1)
-			exponent = 0
-		elseif exponent > 0 then
-			if exponent >= 0xFF then
-				return 0x00, 0x00, 0x80, sign + 0x7F
-			elseif exponent == 1 then
-				exponent = 0
-			else
-				mantissa = mantissa * 2 - 1
-				exponent = exponent - 1
-			end
-		end
-		mantissa = math_floor(math_ldexp(mantissa, 23) + 0.5)
-		return mantissa % 0x100,
-				bit_rshift(mantissa, 8) % 0x100,
-				(exponent % 2) * 0x80 + bit_rshift(mantissa, 16),
-				sign + bit_rshift(exponent, 1)
-	end
+    if number == 0 then
+        return 0x00, 0x00, 0x00, 0x00
+    elseif number == math_huge then
+        return 0x00, 0x00, 0x80, 0x7F
+    elseif number == -math_huge then
+        return 0x00, 0x00, 0x80, 0xFF
+    elseif number ~= number then
+        return 0x00, 0x00, 0xC0, 0xFF
+    else
+        local sign = 0x00
+        if number < 0 then
+            sign = 0x80
+            number = -number
+        end
+        local mantissa, exponent = math_frexp(number)
+        exponent = exponent + 0x7F
+        if exponent <= 0 then
+            mantissa = math_ldexp(mantissa, exponent - 1)
+            exponent = 0
+        elseif exponent > 0 then
+            if exponent >= 0xFF then
+                return 0x00, 0x00, 0x80, sign + 0x7F
+            elseif exponent == 1 then
+                exponent = 0
+            else
+                mantissa = mantissa * 2 - 1
+                exponent = exponent - 1
+            end
+        end
+        mantissa = math_floor(math_ldexp(mantissa, 23) + 0.5)
+        return mantissa % 0x100,
+                bit_rshift(mantissa, 8) % 0x100,
+                (exponent % 2) * 0x80 + bit_rshift(mantissa, 16),
+                sign + bit_rshift(exponent, 1)
+    end
 end
 
 local function UnpackIEEE754Float(b4, b3, b2, b1)
-	local exponent = (b1 % 0x80) * 0x02 + bit_rshift(b2, 7)
-	local mantissa = math_ldexp(((b2 % 0x80) * 0x100 + b3) * 0x100 + b4, -23)
-	if exponent == 0xFF then
-		if mantissa > 0 then
-			return 0 / 0
-		else
-			if b1 >= 0x80 then
-				return -math_huge
-			else
-				return math_huge
-			end
-		end
-	elseif exponent > 0 then
-		mantissa = mantissa + 1
-	else
-		exponent = exponent + 1
-	end
-	if b1 >= 0x80 then
-		mantissa = -mantissa
-	end
-	return math_ldexp(mantissa, exponent - 0x7F)
+    local exponent = (b1 % 0x80) * 0x02 + bit_rshift(b2, 7)
+    local mantissa = math_ldexp(((b2 % 0x80) * 0x100 + b3) * 0x100 + b4, -23)
+    if exponent == 0xFF then
+        if mantissa > 0 then
+            return 0 / 0
+        else
+            if b1 >= 0x80 then
+                return -math_huge
+            else
+                return math_huge
+            end
+        end
+    elseif exponent > 0 then
+        mantissa = mantissa + 1
+    else
+        exponent = exponent + 1
+    end
+    if b1 >= 0x80 then
+        mantissa = -mantissa
+    end
+    return math_ldexp(mantissa, exponent - 0x7F)
 end
 
 local function Bytestream(data)
