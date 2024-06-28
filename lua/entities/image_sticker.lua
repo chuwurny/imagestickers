@@ -474,6 +474,14 @@ end
 function ENT:ProcessImageURL(new)
     if SERVER then return end
 
+    new = string.Trim(new)
+
+    if #new == "" then
+        self.image = nil
+
+        return
+    end
+
     self.image = self:NewImageStruct(false, true)
 
     local link
