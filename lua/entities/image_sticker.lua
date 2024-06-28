@@ -364,14 +364,14 @@ function ENT:NewImageStruct(errored, loading)
     return ret
 end
 
-function ENT:CreateImage(materialData, animated, link, imgurID)
+function ENT:CreateImage(materialData, animated, link)
     self.image = self:NewImageStruct(false, true)
     self.image.animated = animated
     self.image.link = link
     self.image.width = materialData.width
     self.image.height = materialData.height
 
-    mat = CreateMaterial("imageloader_" .. imgurID .. SysTime(), "VertexLitGeneric", {
+    mat = CreateMaterial("imageloader_" .. util.CRC(link), "VertexLitGeneric", {
         ["$alpha"] = 1,
         ["$basetexture"] = materialData.raw:GetString("$basetexture"),
         ["$model"] = 1,
