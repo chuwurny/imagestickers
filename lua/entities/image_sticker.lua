@@ -476,7 +476,7 @@ function ENT:ProcessImageURL(new)
 
     new = string.Trim(new)
 
-    if #new == "" then
+    if new == "" then
         self.image = nil
 
         return
