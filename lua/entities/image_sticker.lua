@@ -371,7 +371,7 @@ function ENT:CreateImage(materialData, animated, link)
     self.image.width = materialData.width
     self.image.height = materialData.height
 
-    mat = CreateMaterial("imageloader_" .. util.CRC(link), "VertexLitGeneric", {
+    local mat = CreateMaterial("imageloader_" .. util.CRC(link), "VertexLitGeneric", {
         ["$alpha"] = 1,
         ["$basetexture"] = materialData.raw:GetString("$basetexture"),
         ["$model"] = 1,
