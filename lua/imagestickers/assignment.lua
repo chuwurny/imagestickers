@@ -14,14 +14,14 @@ if SERVER then
 
         net.Start("march.imagestickers.assignowner")
         net.WriteEntity(ent)
-        net.WriteString(ent.StickerOwnerID)
+        net.WriteString(ent.StickerOwnerID or "")
         net.Send(ply)
     end)
 
     function ImageStickers.SendOwner(ent, ply)
         net.Start("march.imagestickers.assignowner")
         net.WriteEntity(ent)
-        net.WriteString(ent.StickerOwnerID)
+        net.WriteString(ent.StickerOwnerID or "")
         net.Send(ply)
     end
 end
